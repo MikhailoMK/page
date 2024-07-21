@@ -1,14 +1,14 @@
-name: Push-to-EC2-Prod
+name: Push-to-EC2-Test
 
-# Пушить только на изменения в ветке main
+# Пушить только на изменения в ветке test
 on:
   push:
     branches:
-      - main
+      - test
 
 jobs:
   deploy:
-    name: Deploy to EC2 on master branch push
+    name: Deploy to EC2 on test branch push
     runs-on: ubuntu-latest
 
     steps:
@@ -19,14 +19,14 @@ jobs:
         uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST_TEST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: ${{ secrets.TARGET }}
 
       - name: Executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.REMOTE_HOST }}
+          host: ${{ secrets.REMOTE_HOST_TEST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
