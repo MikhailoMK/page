@@ -13,11 +13,7 @@ jobs:
 
     steps:
       - name: Checkout the files
-        uses: actions/checkout@v2
-
-      - name: Create deployment directory if not exists
-        run: |
-          sudo mkdir /var/www/page    
+        uses: actions/checkout@v2   
 
       - name: Deploy to Cometa-Prod
         uses: easingthemes/ssh-deploy@main
@@ -44,5 +40,6 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            sudo mkdir /var/www/page
             sudo mv /home/ubuntu/page/* /var/www/page/
             sudo service nginx restart
