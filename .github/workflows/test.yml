@@ -1,6 +1,6 @@
-name: Push-to-EC2-Test
+name: Push-to-EC2-Prod
 
-# Пушить только на изменения в ветке test
+# Пушить только на изменения в ветке main
 on:
   push:
     branches:
@@ -8,12 +8,17 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to EC2 on test branch push
+    name: Deploy to EC2 on main branch push
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout the files
         uses: actions/checkout@v2
+
+      - name: Create deployment directory if not exists
+        run: |
+          sudo mkdir -p /var/www/page
+          sudo chown ${{ secrets.REMOTE_USER }}:$USER /var/www/page
 
       - name: Deploy to Cometa-Prod
         uses: easingthemes/ssh-deploy@main
@@ -22,6 +27,16 @@ jobs:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST_TEST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: ${{ secrets.TARGET }}
+
+      - name: Configure nginx default site to /var/www/page
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST_TEST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            sudo sed -i 's#root /var/www/html;#root /var/www/page;#' /etc/nginx/sites-available/default
+            sudo service nginx restart
 
       - name: Executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@master
