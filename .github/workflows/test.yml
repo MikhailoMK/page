@@ -17,8 +17,7 @@ jobs:
 
       - name: Create deployment directory if not exists
         run: |
-          sudo mkdir -p /var/www/page
-          sudo chown ${{ secrets.REMOTE_USER }}:$USER /var/www/page
+          sudo mkdir /var/www/page    
 
       - name: Deploy to Cometa-Prod
         uses: easingthemes/ssh-deploy@main
