@@ -8,12 +8,12 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to EC2 on master branch push
+    name: Deploy to EC2 on main branch push
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout the files
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2   
 
       - name: Deploy to Cometa-Prod
         uses: easingthemes/ssh-deploy@main
@@ -23,6 +23,16 @@ jobs:
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: ${{ secrets.TARGET }}
 
+      - name: Configure nginx default site to /var/www/page
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            sudo sed -i 's#root /var/www/html;#root /var/www/page;#' /etc/nginx/sites-available/default
+            sudo service nginx restart
+
       - name: Executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@master
         with:
@@ -30,5 +40,6 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            sudo mkdir /var/www/page
             sudo mv /home/ubuntu/page/* /var/www/page/
             sudo service nginx restart
